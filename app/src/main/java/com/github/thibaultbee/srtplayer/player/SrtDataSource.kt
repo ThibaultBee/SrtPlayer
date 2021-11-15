@@ -4,18 +4,16 @@ import android.net.Uri
 import android.util.Log
 import com.github.thibaultbee.srtdroid.enums.SockOpt
 import com.github.thibaultbee.srtdroid.enums.Transtype
-import com.google.android.exoplayer2.upstream.BaseDataSource
-import java.io.IOException
 import com.github.thibaultbee.srtdroid.models.Socket
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.upstream.BaseDataSource
 import com.google.android.exoplayer2.upstream.DataSpec
+import java.io.IOException
+import java.io.InputStream
 import java.net.InetSocketAddress
 import java.util.*
 
-class SrtLiveStreamDataSource(
-    private val inetSocketAddress: InetSocketAddress,
-    private val passPhrase: String?
-) :
+class SrtDataSource :
     BaseDataSource(/*isNetwork*/true) {
 
     companion object {
@@ -23,15 +21,18 @@ class SrtLiveStreamDataSource(
     }
 
     private var socket: Socket? = null
-    private val byteQueue: Queue<Byte> = LinkedList()
+    private var inputStream: InputStream? = null
 
     override fun open(dataSpec: DataSpec): Long {
         socket = Socket().apply {
             setSockFlag(SockOpt.TRANSTYPE, Transtype.LIVE)
             setSockFlag(SockOpt.PAYLOADSIZE, PAYLOAD_SIZE)
-            passPhrase?.let { setSockFlag(SockOpt.PASSPHRASE, it) }
-            Log.i("SrtLiveStreamDataSource", "Connecting to $inetSocketAddress")
-            connect(inetSocketAddress)
+            dataSpec.key?.let { setSockFlag(SockOpt.PASSPHRASE, it) }
+
+            Log.i("SrtDataSource", "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
+            dataSpec.uri.host?.let { connect(it, dataSpec.uri.port) }
+                ?: throw IOException("Host is not valid")
+            inputStream = getInputStream()
         }
         return C.LENGTH_UNSET.toLong()
     }
@@ -48,29 +49,20 @@ class SrtLiveStreamDataSource(
         if (length == 0) {
             return 0
         }
-        var bytesReceived = 0
-        if (socket != null) {
-            val received = socket!!.recv(PAYLOAD_SIZE)
-            for (byte in received.second /*received byte array*/) {
-                byteQueue.offer(byte)
-            }
-            repeat(length) { index ->
-                val byte = byteQueue.poll()
-                if (byte != null) {
-                    buffer[index + offset] = byte
-                    bytesReceived++
-                }
-            }
-            return bytesReceived
+
+        inputStream?.let {
+            return it.read(buffer, offset, length)
         }
         throw IOException("Couldn't read bytes at offset: $offset")
     }
 
     override fun getUri(): Uri {
-        return Uri.parse("srt://$inetSocketAddress")
+        return Uri.parse("srt://")
     }
 
     override fun close() {
+        inputStream?.close()
+        inputStream = null
         socket?.close()
         socket = null
     }

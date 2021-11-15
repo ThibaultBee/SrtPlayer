@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SrtPlayer</string>
+
+    <string name="srt_endpoint_key">srt_endpoint_key</string>
+    <string name="srt_endpoint_default">srt://192.168.1.27:9998</string>
+    <string name="srt_endpoint">SRT endpoint</string>
+    <string name="srt_passphrase">Pass phrase</string>
+    <string name="srt_passphrase_key">srt_passphrase_key</string>
+    <string name="srt_passphrase_default" />
 </resources>

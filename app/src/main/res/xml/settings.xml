@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        app:defaultValue="@string/srt_endpoint_default"
+        app:key="@string/srt_endpoint_key"
+        app:title="@string/srt_endpoint"
+        app:useSimpleSummaryProvider="true" />
+
+    <EditTextPreference
+        app:defaultValue="@string/srt_passphrase_default"
+        app:key="@string/srt_passphrase_key"
+        app:title="@string/srt_passphrase"
+        app:useSimpleSummaryProvider="true" />
+
+</androidx.preference.PreferenceScreen>
