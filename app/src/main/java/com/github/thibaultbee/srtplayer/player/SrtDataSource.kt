@@ -6,11 +6,11 @@ import com.github.thibaultbee.srtdroid.enums.SockOpt
 import com.github.thibaultbee.srtdroid.enums.Transtype
 import com.github.thibaultbee.srtdroid.models.Socket
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_PACKET_SIZE
 import com.google.android.exoplayer2.upstream.BaseDataSource
 import com.google.android.exoplayer2.upstream.DataSpec
 import java.io.IOException
 import java.io.InputStream
-import java.net.InetSocketAddress
 import java.util.*
 
 class SrtDataSource :
@@ -20,8 +20,8 @@ class SrtDataSource :
         const val PAYLOAD_SIZE = 1316
     }
 
+    private val byteQueue: Queue<ByteArray> = LinkedList()
     private var socket: Socket? = null
-    private var inputStream: InputStream? = null
 
     override fun open(dataSpec: DataSpec): Long {
         socket = Socket().apply {
@@ -32,7 +32,6 @@ class SrtDataSource :
             Log.i("SrtDataSource", "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
             dataSpec.uri.host?.let { connect(it, dataSpec.uri.port) }
                 ?: throw IOException("Host is not valid")
-            inputStream = getInputStream()
         }
         return C.LENGTH_UNSET.toLong()
     }
@@ -50,8 +49,30 @@ class SrtDataSource :
             return 0
         }
 
-        inputStream?.let {
-            return it.read(buffer, offset, length)
+        socket?.let {
+            var bytesReceived = 0
+            val received = it.recv(PAYLOAD_SIZE)
+            (0 until received.first / TS_PACKET_SIZE).forEach { i ->
+                byteQueue.offer(
+                    received.second.copyOfRange(
+                        i * TS_PACKET_SIZE,
+                        (i + 1) * TS_PACKET_SIZE
+                    )
+                )
+            }
+            var tmpBuffer = byteQueue.poll()
+            var i = 0
+            while(tmpBuffer != null) {
+                System.arraycopy(tmpBuffer, 0, buffer, offset + i * TS_PACKET_SIZE, TS_PACKET_SIZE)
+                bytesReceived += TS_PACKET_SIZE
+                i++
+                if (offset + i * TS_PACKET_SIZE >= length) {
+                    break
+                }
+                tmpBuffer = byteQueue.poll()
+            }
+
+            return bytesReceived
         }
         throw IOException("Couldn't read bytes at offset: $offset")
     }
@@ -61,8 +82,7 @@ class SrtDataSource :
     }
 
     override fun close() {
-        inputStream?.close()
-        inputStream = null
+        byteQueue.clear()
         socket?.close()
         socket = null
     }
