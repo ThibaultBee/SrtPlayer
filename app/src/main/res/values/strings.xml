@@ -7,4 +7,5 @@
     <string name="srt_passphrase">Pass phrase</string>
     <string name="srt_passphrase_key">srt_passphrase_key</string>
     <string name="srt_passphrase_default" />
+    <string name="update">Update</string>
 </resources>
