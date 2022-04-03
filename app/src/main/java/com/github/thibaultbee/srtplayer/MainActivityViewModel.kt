@@ -29,9 +29,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private fun buildPlayer(): Player {
         val url = PreferenceManager.getDefaultSharedPreferences(getApplication())
-            .getString((getApplication() as Context).getString(R.string.srt_endpoint_key), null)
+            .getString(
+                (getApplication() as Context).getString(R.string.srt_endpoint_key),
+                (getApplication() as Context).getString(R.string.srt_endpoint_default)
+            )
         val passphrase = PreferenceManager.getDefaultSharedPreferences(getApplication())
-            .getString((getApplication() as Context).getString(R.string.srt_passphrase_key), null)
+            .getString(
+                (getApplication() as Context).getString(R.string.srt_passphrase_key),
+                (getApplication() as Context).getString(R.string.srt_passphrase_default)
+            )
 
         val mediaItem = MediaItem.Builder()
             .setUri(url)
