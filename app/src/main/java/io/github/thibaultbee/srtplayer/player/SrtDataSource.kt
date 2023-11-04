@@ -24,10 +24,22 @@ class SrtDataSource :
     private var socket: Socket? = null
 
     override fun open(dataSpec: DataSpec): Long {
+        val streamId = dataSpec.uri.getQueryParameter("streamid")
+        val passPhrase = dataSpec.uri.getQueryParameter("passphrase")
+        val latency = dataSpec.uri.getQueryParameter("latency")
+
         socket = Socket().apply {
             setSockFlag(SockOpt.TRANSTYPE, Transtype.LIVE)
             setSockFlag(SockOpt.PAYLOADSIZE, PAYLOAD_SIZE)
-
+            latency?.let {
+                setSockFlag(SockOpt.LATENCY, it.toInt())
+            }
+            passPhrase?.let {
+                setSockFlag(SockOpt.PASSPHRASE, it)
+            }
+            streamId?.let {
+                setSockFlag(SockOpt.STREAMID, it)
+            }
             dataSpec.key?.let { setSockFlag(SockOpt.PASSPHRASE, it) }
 
             Log.i("SrtDataSource", "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
