@@ -1,15 +1,15 @@
-package com.github.thibaultbee.srtplayer
+package io.github.thibaultbee.srtplayer
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.preference.PreferenceManager
-import com.github.thibaultbee.srtplayer.player.SrtDataSourceFactory
-import com.github.thibaultbee.srtplayer.player.TsOnlyExtractorFactory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import io.github.thibaultbee.srtplayer.player.SrtDataSourceFactory
+import io.github.thibaultbee.srtplayer.player.TsOnlyExtractorFactory
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     var _player: Player? = null

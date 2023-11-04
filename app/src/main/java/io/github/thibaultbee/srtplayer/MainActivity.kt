@@ -1,9 +1,9 @@
-package com.github.thibaultbee.srtplayer
+package io.github.thibaultbee.srtplayer
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.github.thibaultbee.srtplayer.databinding.ActivityMainBinding
+import io.github.thibaultbee.srtplayer.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

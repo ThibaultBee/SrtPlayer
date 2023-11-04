@@ -1,17 +1,17 @@
-package com.github.thibaultbee.srtplayer.player
+package io.github.thibaultbee.srtplayer.player
 
 import android.net.Uri
 import android.util.Log
-import com.github.thibaultbee.srtdroid.enums.SockOpt
-import com.github.thibaultbee.srtdroid.enums.Transtype
-import com.github.thibaultbee.srtdroid.models.Socket
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_PACKET_SIZE
 import com.google.android.exoplayer2.upstream.BaseDataSource
 import com.google.android.exoplayer2.upstream.DataSpec
+import io.github.thibaultbee.srtdroid.enums.SockOpt
+import io.github.thibaultbee.srtdroid.enums.Transtype
+import io.github.thibaultbee.srtdroid.models.Socket
 import java.io.IOException
-import java.io.InputStream
-import java.util.*
+import java.util.LinkedList
+import java.util.Queue
 
 class SrtDataSource :
     BaseDataSource(/*isNetwork*/true) {
@@ -27,6 +27,7 @@ class SrtDataSource :
         socket = Socket().apply {
             setSockFlag(SockOpt.TRANSTYPE, Transtype.LIVE)
             setSockFlag(SockOpt.PAYLOADSIZE, PAYLOAD_SIZE)
+
             dataSpec.key?.let { setSockFlag(SockOpt.PASSPHRASE, it) }
 
             Log.i("SrtDataSource", "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
@@ -62,7 +63,7 @@ class SrtDataSource :
             }
             var tmpBuffer = byteQueue.poll()
             var i = 0
-            while(tmpBuffer != null) {
+            while (tmpBuffer != null) {
                 System.arraycopy(tmpBuffer, 0, buffer, offset + i * TS_PACKET_SIZE, TS_PACKET_SIZE)
                 bytesReceived += TS_PACKET_SIZE
                 i++

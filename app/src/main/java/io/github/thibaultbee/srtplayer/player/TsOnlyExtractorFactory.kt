@@ -1,4 +1,4 @@
-package com.github.thibaultbee.srtplayer.player
+package io.github.thibaultbee.srtplayer.player
 
 import com.google.android.exoplayer2.extractor.Extractor
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
