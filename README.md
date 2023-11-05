@@ -1,8 +1,8 @@
 # SrtPlayer
 
-An Android SRT test player powered by [ExoPayer](https://github.com/google/ExoPlayer). Most of this code
+An Android SRT test player powered by [ExoPlayer](https://github.com/google/ExoPlayer). Most of this code
 comes from [YoussefHenna](https://github.com/YoussefHenna) reply in
-the [SRT support ExoPayer issue](https://github.com/google/ExoPlayer/issues/8647).
+the [SRT support ExoPlayer issue](https://github.com/google/ExoPlayer/issues/8647).
 
 It demonstrates how to use [srtdroid](https://github.com/ThibaultBee/srtdroid) and read data from a
 remote SRT device.
