@@ -17,7 +17,8 @@ class SrtDataSource :
     BaseDataSource(/*isNetwork*/true) {
 
     companion object {
-        const val PAYLOAD_SIZE = 1316
+        private const val PAYLOAD_SIZE = 1316
+        private const val TAG = "SrtDataSource"
     }
 
     private val byteQueue: Queue<ByteArray> = LinkedList()
@@ -42,7 +43,7 @@ class SrtDataSource :
             }
             dataSpec.key?.let { setSockFlag(SockOpt.PASSPHRASE, it) }
 
-            Log.i("SrtDataSource", "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
+            Log.i(TAG, "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
             dataSpec.uri.host?.let { connect(it, dataSpec.uri.port) }
                 ?: throw IOException("Host is not valid")
         }
