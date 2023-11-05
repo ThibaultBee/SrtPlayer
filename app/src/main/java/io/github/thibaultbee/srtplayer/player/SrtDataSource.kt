@@ -79,7 +79,7 @@ class SrtDataSource :
                 System.arraycopy(tmpBuffer, 0, buffer, offset + i * TS_PACKET_SIZE, TS_PACKET_SIZE)
                 bytesReceived += TS_PACKET_SIZE
                 i++
-                if (offset + i * TS_PACKET_SIZE >= length) {
+                if (i * TS_PACKET_SIZE >= length) {
                     break
                 }
                 tmpBuffer = byteQueue.poll()
