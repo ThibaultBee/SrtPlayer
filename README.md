@@ -29,11 +29,20 @@ On another terminal, run:
 ffmpeg -f lavfi -re -i smptebars=duration=300:size=1280x720:rate=30 -f lavfi -re -i sine=frequency=1000:duration=60:sample_rate=44100 -pix_fmt yuv420p -c:v libx264 -b:v 1000k -g 30 -keyint_min 40 -profile:v baseline -preset veryfast -f mpegts "srt://127.0.0.1:1234?pkt_size=1316"
 ```
 
-Then, on the Android applicatio, set the `SRT endpoint` to:
+Then, on the Android application, set the `SRT endpoint` to:
 
 ```bash
-srt://ip.of.my.computer:9998
+srt://ip.of.my.computer:9998?streamid=mystream
 ```
+
+Only the following parameters are extracted from the URL query:
+
+- `streamid`
+- `passphrase`: setting a passphrase with `setCustomCacheKey` method overrides this parameter
+- `latency`
+
+All other parameters are ignored.
+See [SrtDataSource](https://github.com/ThibaultBee/SrtPlayer/blob/39f282973476f6589013092a2b6710e4a7192194/app/src/main/java/io/github/thibaultbee/srtplayer/player/SrtDataSource.kt#L28)
 
 Press `Update`.
 
