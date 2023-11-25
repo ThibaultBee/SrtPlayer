@@ -28,6 +28,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun buildPlayer(): Player {
+        /**
+         * URL format: srt://host:port?streamid=streamid&latency=latency
+         *
+         * Only the following parameters are extracted from the URL query:
+         * - streamid`
+         * - `passphrase`: setting a passphrase with `setCustomCacheKey` method overrides this parameter
+         * - `latency`
+         */
         val url = PreferenceManager.getDefaultSharedPreferences(getApplication())
             .getString(
                 (getApplication() as Context).getString(R.string.srt_endpoint_key),
