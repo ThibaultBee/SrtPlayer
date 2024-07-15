@@ -1,8 +1,6 @@
 # SrtPlayer
 
-An Android SRT test player powered by [ExoPlayer](https://github.com/google/ExoPlayer). Most of this
-code
-comes from [YoussefHenna](https://github.com/YoussefHenna) reply in
+An Android SRT test player powered by [ExoPlayer](https://github.com/google/ExoPlayer). Most of this code comes from [YoussefHenna](https://github.com/YoussefHenna) reply in
 the [SRT support ExoPlayer issue](https://github.com/google/ExoPlayer/issues/8647).
 
 It demonstrates how to use [srtdroid](https://github.com/ThibaultBee/srtdroid) and read data from a
@@ -35,16 +33,15 @@ Then, on the Android application, set the `SRT endpoint` to:
 srt://ip.of.my.computer:9998?streamid=mystream
 ```
 
-Only the following parameters are extracted from the URL query:
+Only caller mode in Live transmission is supported.
 
-- `streamid`
-- `passphrase`: setting a passphrase with `setCustomCacheKey` method overrides this parameter
-- `latency`
-
-All other parameters are ignored.
 See [SrtDataSource](https://github.com/ThibaultBee/SrtPlayer/blob/39f282973476f6589013092a2b6710e4a7192194/app/src/main/java/io/github/thibaultbee/srtplayer/player/SrtDataSource.kt#L28)
 
 Press `Update`.
+
+## TODO
+
+- [ ] Migrate to Media3
 
 ## Licence
 
