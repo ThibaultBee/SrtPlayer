@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 Thibault B.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.thibaultbee.srtplayer.player
 
 import android.net.Uri
@@ -6,9 +21,10 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_PACKET_SIZE
 import com.google.android.exoplayer2.upstream.BaseDataSource
 import com.google.android.exoplayer2.upstream.DataSpec
-import io.github.thibaultbee.srtdroid.enums.SockOpt
-import io.github.thibaultbee.srtdroid.enums.Transtype
-import io.github.thibaultbee.srtdroid.models.Socket
+import io.github.thibaultbee.srtdroid.core.enums.Transtype
+import io.github.thibaultbee.srtdroid.core.extensions.connect
+import io.github.thibaultbee.srtdroid.core.models.SrtSocket
+import io.github.thibaultbee.srtdroid.core.models.SrtUrl
 import java.io.IOException
 import java.util.LinkedList
 import java.util.Queue
@@ -22,31 +38,20 @@ class SrtDataSource :
     }
 
     private val byteQueue: Queue<ByteArray> = LinkedList()
-    private var socket: Socket? = null
+    private var socket: SrtSocket? = null
+    private var srtUrl: SrtUrl? = null
 
     override fun open(dataSpec: DataSpec): Long {
-        val streamId = dataSpec.uri.getQueryParameter("streamid")
-        val passPhrase = dataSpec.uri.getQueryParameter("passphrase")
-        val latency = dataSpec.uri.getQueryParameter("latency")
+        val srtUrl = SrtUrl(dataSpec.uri)
+        socket = SrtSocket().apply {
+            require(srtUrl.transtype == Transtype.LIVE) { "Only live mode is supported" }
+            require(srtUrl.payloadSize == PAYLOAD_SIZE) { "Only payload size of $PAYLOAD_SIZE is supported" }
+            require(srtUrl.mode == SrtUrl.Mode.CALLER)
 
-        socket = Socket().apply {
-            setSockFlag(SockOpt.TRANSTYPE, Transtype.LIVE)
-            setSockFlag(SockOpt.PAYLOADSIZE, PAYLOAD_SIZE)
-            latency?.let {
-                setSockFlag(SockOpt.LATENCY, it.toInt())
-            }
-            passPhrase?.let {
-                setSockFlag(SockOpt.PASSPHRASE, it)
-            }
-            streamId?.let {
-                setSockFlag(SockOpt.STREAMID, it)
-            }
-            dataSpec.key?.let { setSockFlag(SockOpt.PASSPHRASE, it) }
-
-            Log.i(TAG, "Connecting to ${dataSpec.uri.host}:${dataSpec.uri.port}.")
-            dataSpec.uri.host?.let { connect(it, dataSpec.uri.port) }
-                ?: throw IOException("Host is not valid")
+            Log.i(TAG, "Connecting to ${srtUrl.hostname}:${srtUrl.port}.")
+            connect(srtUrl)
         }
+        this.srtUrl = srtUrl
         return C.LENGTH_UNSET.toLong()
     }
 
@@ -65,10 +70,10 @@ class SrtDataSource :
 
         socket?.let {
             var bytesReceived = 0
-            val received = it.recv(PAYLOAD_SIZE)
-            (0 until received.first / TS_PACKET_SIZE).forEach { i ->
+            val rcvBuffer = it.recv(PAYLOAD_SIZE)
+            (0 until rcvBuffer.size / TS_PACKET_SIZE).forEach { i ->
                 byteQueue.offer(
-                    received.second.copyOfRange(
+                    rcvBuffer.copyOfRange(
                         i * TS_PACKET_SIZE,
                         (i + 1) * TS_PACKET_SIZE
                     )
@@ -92,7 +97,7 @@ class SrtDataSource :
     }
 
     override fun getUri(): Uri {
-        return Uri.parse("srt://")
+        return srtUrl?.uri ?: Uri.EMPTY
     }
 
     override fun close() {
