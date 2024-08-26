@@ -44,7 +44,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
-    implementation 'io.github.thibaultbee.srtdroid:srtdroid-core:1.8.0'
+    implementation 'io.github.thibaultbee.srtdroid:srtdroid-core:1.8.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'

@@ -97,7 +97,8 @@ class SrtDataSource :
     }
 
     override fun getUri(): Uri {
-        return srtUrl?.uri ?: Uri.EMPTY
+        val srtUrl = srtUrl ?: return Uri.EMPTY
+        return Uri.parse(srtUrl.srtUri.toString())
     }
 
     override fun close() {
