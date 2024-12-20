@@ -17,10 +17,12 @@ package io.github.thibaultbee.srtplayer.player
 
 import android.net.Uri
 import android.util.Log
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_PACKET_SIZE
-import com.google.android.exoplayer2.upstream.BaseDataSource
-import com.google.android.exoplayer2.upstream.DataSpec
+import androidx.annotation.OptIn
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.BaseDataSource
+import androidx.media3.datasource.DataSpec
+import androidx.media3.extractor.ts.TsExtractor.TS_PACKET_SIZE
 import io.github.thibaultbee.srtdroid.core.enums.Transtype
 import io.github.thibaultbee.srtdroid.core.extensions.connect
 import io.github.thibaultbee.srtdroid.core.models.SrtSocket
@@ -29,6 +31,7 @@ import java.io.IOException
 import java.util.LinkedList
 import java.util.Queue
 
+@UnstableApi
 class SrtDataSource :
     BaseDataSource(/*isNetwork*/true) {
 
@@ -69,6 +72,7 @@ class SrtDataSource :
      * You cannot directly receive at the given length from the socket, because SRT uses a
      * predetermined payload size that cannot be dynamic
      */
+    @OptIn(UnstableApi::class)
     override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
         if (length == 0) {
             return 0

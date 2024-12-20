@@ -15,8 +15,11 @@
  */
 package io.github.thibaultbee.srtplayer.player
 
-import com.google.android.exoplayer2.upstream.DataSource
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
 
+
+@UnstableApi
 class SrtDataSourceFactory :
     DataSource.Factory {
     override fun createDataSource(): DataSource {
