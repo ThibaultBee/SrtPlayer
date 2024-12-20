@@ -44,9 +44,15 @@ class SrtDataSource :
     override fun open(dataSpec: DataSpec): Long {
         val srtUrl = SrtUrl(dataSpec.uri)
         socket = SrtSocket().apply {
-            require(srtUrl.transtype == Transtype.LIVE) { "Only live mode is supported" }
-            require(srtUrl.payloadSize == PAYLOAD_SIZE) { "Only payload size of $PAYLOAD_SIZE is supported" }
-            require(srtUrl.mode == SrtUrl.Mode.CALLER)
+            if (srtUrl.transtype != null) {
+                require(srtUrl.transtype == Transtype.LIVE) { "Only live mode is supported but ${srtUrl.transtype}" }
+            }
+            if (srtUrl.payloadSize != null) {
+                require(srtUrl.payloadSize == PAYLOAD_SIZE) { "Only payload size of $PAYLOAD_SIZE is supported but ${srtUrl.payloadSize}" }
+            }
+            if (srtUrl.mode != null) {
+                require(srtUrl.mode == SrtUrl.Mode.CALLER) { "Only caller mode is supported but ${srtUrl.mode}" }
+            }
 
             Log.i(TAG, "Connecting to ${srtUrl.hostname}:${srtUrl.port}.")
             connect(srtUrl)
