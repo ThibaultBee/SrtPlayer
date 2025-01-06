@@ -18,6 +18,7 @@ package io.github.thibaultbee.srtplayer
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import io.github.thibaultbee.srtplayer.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +27,23 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this).get(MainActivityViewModel::class.java)
     }
+
+    /**
+     * URL format: srt://host:port?streamid=streamid&latency=latency
+     */
+    private val url: String?
+        get() = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString(
+                getString(R.string.srt_endpoint_key),
+                getString(R.string.srt_endpoint_default)
+            )
+
+    private val passphrase: String?
+        get() = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString(
+                getString(R.string.srt_passphrase_key),
+                getString(R.string.srt_passphrase_default)
+            )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.playerView.player = viewModel.player
         binding.updateButton.setOnClickListener {
-            binding.playerView.player = viewModel.player
+            viewModel.setMediaItem(url!!, passphrase!!)
         }
     }
 }

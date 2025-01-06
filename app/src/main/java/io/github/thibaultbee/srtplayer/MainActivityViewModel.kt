@@ -16,51 +16,29 @@
 package io.github.thibaultbee.srtplayer
 
 import android.app.Application
-import android.content.Context
 import androidx.annotation.OptIn
 import androidx.lifecycle.AndroidViewModel
-import androidx.preference.PreferenceManager
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import io.github.thibaultbee.srtplayer.player.SrtDataSourceFactory
 import io.github.thibaultbee.srtplayer.player.TsOnlyExtractorFactory
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
-    private var _player: Player? = null
-    val player: Player
-        get() {
-            _player?.let {
-                releasePlayer(it)
-            }
-            _player = buildPlayer()
-            return _player!!
-        }
+    val player = ExoPlayer.Builder(getApplication()).build()
 
-    private fun releasePlayer(player: Player) {
-        player.stop()
-        player.release()
+    @OptIn(UnstableApi::class)
+    fun setMediaItem(url: String, passphrase: String) {
+        player.setMediaSource(createMediaSource(url, passphrase))
+        player.prepare()
+        player.playWhenReady = true
     }
 
     @OptIn(UnstableApi::class)
-    private fun buildPlayer(): Player {
-        /**
-         * URL format: srt://host:port?streamid=streamid&latency=latency
-         */
-        val url = PreferenceManager.getDefaultSharedPreferences(getApplication())
-            .getString(
-                (getApplication() as Context).getString(R.string.srt_endpoint_key),
-                (getApplication() as Context).getString(R.string.srt_endpoint_default)
-            )
-        val passphrase = PreferenceManager.getDefaultSharedPreferences(getApplication())
-            .getString(
-                (getApplication() as Context).getString(R.string.srt_passphrase_key),
-                (getApplication() as Context).getString(R.string.srt_passphrase_default)
-            )
-
-        val mediaItem = MediaItem.Builder()
+    private fun createMediaItem(url: String, passphrase: String): MediaItem {
+        return MediaItem.Builder()
             .setUri(url)
             /**
              * From SRT socket option: "The password must be minimum 10 and maximum
@@ -68,22 +46,21 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
              */
             .setCustomCacheKey(passphrase)
             .build()
+    }
 
-        /**
-         *  Force to extract MPEG-TS
-         */
-        val source =
-            ProgressiveMediaSource.Factory(SrtDataSourceFactory(), TsOnlyExtractorFactory())
-                .createMediaSource(mediaItem)
+    @OptIn(UnstableApi::class)
+    private fun createMediaSource(mediaItem: MediaItem): MediaSource {
+        return ProgressiveMediaSource.Factory(SrtDataSourceFactory(), TsOnlyExtractorFactory())
+            .createMediaSource(mediaItem)
+    }
 
+    private fun createMediaSource(url: String, passphrase: String): MediaSource {
+        return createMediaSource(createMediaItem(url, passphrase))
+    }
 
-        val player = ExoPlayer.Builder(getApplication())
-            .build()
-        player.setMediaSource(source)
-
-        player.prepare()
-        player.play()
-        player.playWhenReady = true
-        return player
+    override fun onCleared() {
+        player.stop()
+        player.release()
+        super.onCleared()
     }
 }
