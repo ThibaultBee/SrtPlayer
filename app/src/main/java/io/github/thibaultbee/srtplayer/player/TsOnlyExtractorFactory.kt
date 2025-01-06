@@ -15,11 +15,14 @@
  */
 package io.github.thibaultbee.srtplayer.player
 
-import com.google.android.exoplayer2.extractor.Extractor
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
-import com.google.android.exoplayer2.extractor.ts.TsExtractor
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.extractor.Extractor
+import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.ts.TsExtractor
 
-class TsOnlyExtractorFactory: ExtractorsFactory {
+@UnstableApi
+class TsOnlyExtractorFactory : ExtractorsFactory {
     override fun createExtractors(): Array<Extractor> = arrayOf(
-        TsExtractor())
+        TsExtractor()
+    )
 }

@@ -3,6 +3,7 @@
 
     <!-- Application requires POST_NOTIFICATIONS only for ExoPlayer service -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
