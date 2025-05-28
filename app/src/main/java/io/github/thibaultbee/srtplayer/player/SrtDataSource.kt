@@ -57,7 +57,7 @@ class SrtDataSource :
                 require(srtUrl.mode == SrtUrl.Mode.CALLER) { "Only caller mode is supported but ${srtUrl.mode}" }
             }
 
-            Log.i(TAG, "Connecting to ${srtUrl.hostname}:${srtUrl.port}.")
+            Log.i(TAG, "Connecting to ${srtUrl.hostname}:${srtUrl.port} / ${srtUrl.streamId}.")
             connect(srtUrl)
         }
         this.srtUrl = srtUrl
