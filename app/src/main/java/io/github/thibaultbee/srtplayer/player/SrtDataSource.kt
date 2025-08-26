@@ -30,6 +30,7 @@ import io.github.thibaultbee.srtdroid.core.models.SrtUrl
 import java.io.IOException
 import java.util.LinkedList
 import java.util.Queue
+import androidx.core.net.toUri
 
 @UnstableApi
 class SrtDataSource :
@@ -46,17 +47,17 @@ class SrtDataSource :
 
     override fun open(dataSpec: DataSpec): Long {
         val srtUrl = SrtUrl(dataSpec.uri)
-        socket = SrtSocket().apply {
-            if (srtUrl.transtype != null) {
-                require(srtUrl.transtype == Transtype.LIVE) { "Only live mode is supported but ${srtUrl.transtype}" }
-            }
-            if (srtUrl.payloadSize != null) {
-                require(srtUrl.payloadSize == PAYLOAD_SIZE) { "Only payload size of $PAYLOAD_SIZE is supported but ${srtUrl.payloadSize}" }
-            }
-            if (srtUrl.mode != null) {
-                require(srtUrl.mode == SrtUrl.Mode.CALLER) { "Only caller mode is supported but ${srtUrl.mode}" }
-            }
+        if (srtUrl.transtype != null) {
+            require(srtUrl.transtype == Transtype.LIVE) { "Only live mode is supported but ${srtUrl.transtype}" }
+        }
+        if (srtUrl.payloadSize != null) {
+            require(srtUrl.payloadSize == PAYLOAD_SIZE) { "Only payload size of $PAYLOAD_SIZE is supported but ${srtUrl.payloadSize}" }
+        }
+        if (srtUrl.mode != null) {
+            require(srtUrl.mode == SrtUrl.Mode.CALLER) { "Only caller mode is supported but ${srtUrl.mode}" }
+        }
 
+        socket = SrtSocket().apply {
             Log.i(TAG, "Connecting to ${srtUrl.hostname}:${srtUrl.port}.")
             connect(srtUrl)
         }
@@ -108,7 +109,7 @@ class SrtDataSource :
 
     override fun getUri(): Uri {
         val srtUrl = srtUrl ?: return Uri.EMPTY
-        return Uri.parse(srtUrl.srtUri.toString())
+        return srtUrl.srtUri.toString().toUri()
     }
 
     override fun close() {
